@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Carbon Mint Theme */
+:root {
+  --bg-black: #0b0c10;
+  --bg-charcoal: #1f2833;
+  --accent-mint: #00ffc2;
+  --accent-cyan: #45a29e;
+  --text-primary: #f5f5f5;
+}
+
+body {
+  background-color: var(--bg-black);
+  color: var(--text-primary);
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Gradient glow for search bar animations */
+.glow-gradient {
+  background: linear-gradient(
+    90deg,
+    var(--accent-mint),
+    var(--accent-cyan),
+    var(--accent-mint)
+  );
+  background-size: 200% 200%;
+}
