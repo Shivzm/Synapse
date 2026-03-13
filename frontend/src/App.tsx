@@ -3,9 +3,11 @@ import "./App.css";
 import {
   KnowledgeGraphBackground,
   NeuralButton,
-  ExpandingSearchBar,
+  AgenticSearchBar,
   BentoResultsGrid,
   FilteringSidebar,
+  NeuralNavigation,
+  PerformanceDashboard,
 } from "./components";
 
 interface SearchResult {
@@ -21,6 +23,7 @@ function App() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   // Mock search handler - replace with actual API call
   const handleSearch = async (_query: string) => {
@@ -91,13 +94,32 @@ function App() {
     // Filter results based on selected filters
   };
 
+  // Calculate average confidence score from results
+  const averageConfidence =
+    results.length > 0
+      ? Math.round(
+          results.reduce((sum, r) => sum + r.score, 0) / results.length,
+        )
+      : 0;
+
+  // Simulate inference speed (in real scenario, would come from backend)
+  const inferenceSpeedMs = isSearching ? 95 : 85;
+
   return (
     <div className="relative w-full min-h-screen">
       {/* Background animation layer */}
       <KnowledgeGraphBackground />
 
-      {/* Main content */}
-      <div className="relative z-10 w-full min-h-screen flex flex-col">
+      {/* Neural Navigation Sidebar */}
+      <NeuralNavigation
+        onCategoryChange={(categoryId) => {
+          setActiveCategory(categoryId);
+          console.log("Category changed to:", categoryId);
+        }}
+      />
+
+      {/* Main content - accounting for sidebar */}
+      <div className="relative z-10 w-full min-h-screen flex flex-col pl-24">
         {/* Header */}
         <header className="pt-8 px-6 flex items-center justify-between">
           <div className="font-mono font-bold text-2xl text-mint-glow tracking-wider">
@@ -111,10 +133,7 @@ function App() {
         {/* Search bar section */}
         <section className="flex-1 flex items-center justify-center py-12">
           <div className="w-full max-w-4xl px-6">
-            <ExpandingSearchBar
-              onSearch={handleSearch}
-              isLoading={isSearching}
-            />
+            <AgenticSearchBar onSearch={handleSearch} isLoading={isSearching} />
           </div>
         </section>
 
@@ -155,6 +174,14 @@ function App() {
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onFilterChange={handleFilterChange}
+      />
+
+      {/* Performance Dashboard */}
+      <PerformanceDashboard
+        isSearching={isSearching}
+        hasResults={results.length > 0}
+        confidenceScore={averageConfidence}
+        inferenceSpeed={inferenceSpeedMs}
       />
     </div>
   );
