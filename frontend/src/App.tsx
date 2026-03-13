@@ -1,187 +1,85 @@
 import { useState } from "react";
 import "./App.css";
-import {
-  KnowledgeGraphBackground,
-  NeuralButton,
-  AgenticSearchBar,
-  BentoResultsGrid,
-  FilteringSidebar,
-  NeuralNavigation,
-  PerformanceDashboard,
-} from "./components";
+import { KnowledgeGraphBackground } from "./components/KnowledgeGraphBackground";
+import { NeuralNavigation }         from "./components/NeuralNavigation";
+import { AgenticSearchBar }         from "./components/AgenticSearchBar";
+import { BentoResultsGrid }         from "./components/BentoResultsGrid";
+import { FilteringSidebar }         from "./components/FilteringSidebar";
+import { PerformanceDashboard }     from "./components/PerformanceDashboard";
+import { NeuralButton }             from "./components/NeuralButton";
+import type { ResultItem }          from "./components/BentoResultsGrid";
 
-interface SearchResult {
-  id: string;
-  title: string;
-  description: string;
-  score: number;
-  url?: string;
-  category?: string;
-}
+const MOCK_RESULTS: ResultItem[] = [
+  { id: "1", title: "Advanced Ranking Algorithms",    description: "Deep dive into how modern search engines rank results using machine learning and relevance scoring.",                        score: 95, category: "Ranking",  url: "#" },
+  { id: "2", title: "Vector Search Foundations",      description: "Implementing semantic search using dense vector embeddings and approximate nearest-neighbour algorithms.",                  score: 90, category: "Search",   url: "#" },
+  { id: "3", title: "Building Scalable Search",       description: "Architecture patterns for deploying search infrastructure at massive scale without latency regressions.",                   score: 88, category: "Perf",    url: "#" },
+  { id: "4", title: "Neural Networks for Search",     description: "Using transformers and attention mechanisms to improve search relevance at scale.",                                        score: 85, category: "AI",      url: "#" },
+  { id: "5", title: "ML-Based Personalization",       description: "Personalizing results using online learning models and real-time user signals.",                                           score: 82, category: "ML",      url: "#" },
+  { id: "6", title: "Search Query Optimization",      description: "Techniques for reducing P99 latency and improving throughput in high-volume production search systems.",                   score: 78, category: "Perf",    url: "#" },
+];
 
 function App() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterOpen, setFilterOpen]   = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [results, setResults]         = useState<ResultItem[]>([]);
 
-  // Mock search handler - replace with actual API call
-  const handleSearch = async (_query: string) => {
+  const handleSearch = (_query: string) => {
     setIsSearching(true);
-    // Simulate API call
     setTimeout(() => {
-      setResults([
-        {
-          id: "1",
-          title: "Advanced Ranking Algorithms",
-          description:
-            "Deep dive into how modern search engines rank results using machine learning and relevance scoring.",
-          score: 95,
-          category: "Ranking",
-          url: "#",
-        },
-        {
-          id: "2",
-          title: "Neural Networks for Search",
-          description:
-            "Using transformers and attention mechanisms to improve search relevance.",
-          score: 87,
-          category: "AI",
-          url: "#",
-        },
-        {
-          id: "3",
-          title: "Building Scalable Search",
-          description:
-            "Architecture patterns for deploying search at massive scale.",
-          score: 92,
-          category: "Performance",
-          url: "#",
-        },
-        {
-          id: "4",
-          title: "Search Optimization",
-          description:
-            "Tips and tricks for optimizing search query execution and latency.",
-          score: 78,
-          category: "Performance",
-          url: "#",
-        },
-        {
-          id: "5",
-          title: "ML-Based Personalization",
-          description:
-            "How to personalize search results using machine learning models.",
-          score: 85,
-          category: "ML",
-          url: "#",
-        },
-        {
-          id: "6",
-          title: "Vector Search",
-          description: "Implementing semantic search using vector embeddings.",
-          score: 90,
-          category: "Search",
-          url: "#",
-        },
-      ]);
+      setResults(MOCK_RESULTS);
       setIsSearching(false);
-    }, 800);
+    }, 900);
   };
 
-  const handleFilterChange = (filters: Record<string, boolean>) => {
-    console.log("Filters applied:", filters);
-    // Filter results based on selected filters
-  };
-
-  // Calculate average confidence score from results
-  const averageConfidence =
-    results.length > 0
-      ? Math.round(
-          results.reduce((sum, r) => sum + r.score, 0) / results.length,
-        )
-      : 0;
-
-  // Simulate inference speed (in real scenario, would come from backend)
-  const inferenceSpeedMs = isSearching ? 95 : 85;
+  const avgConfidence = results.length
+    ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length)
+    : 0;
 
   return (
-    <div className="relative w-full min-h-screen">
-      {/* Background animation layer */}
+    <div style={{ minHeight: "100vh", paddingLeft: 52 }}>
       <KnowledgeGraphBackground />
+      <NeuralNavigation />
 
-      {/* Neural Navigation Sidebar */}
-      <NeuralNavigation
-        onCategoryChange={(categoryId) => {
-          setActiveCategory(categoryId);
-          console.log("Category changed to:", categoryId);
-        }}
-      />
-
-      {/* Main content - accounting for sidebar */}
-      <div className="relative z-10 w-full min-h-screen flex flex-col pl-24">
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         {/* Header */}
-        <header className="pt-8 px-6 flex items-center justify-between">
-          <div className="font-mono font-bold text-2xl text-mint-glow tracking-wider">
-            VESPA SEARCH
+        <header className="app-header">
+          <div className="wordmark">
+            <span className="wordmark-slash">/</span>
+            SYNAPSE
+            <span style={{ color: "var(--ash)", fontWeight: 300 }}></span>
           </div>
-          <NeuralButton onClick={() => setIsFilterOpen(true)} size="sm">
-            FILTERS
-          </NeuralButton>
+          <div className="header-actions">
+            {results.length > 0 && (
+              <NeuralButton variant="secondary" size="sm" onClick={() => setResults([])}>
+                Clear
+              </NeuralButton>
+            )}
+            <button className="header-btn" onClick={() => setFilterOpen(true)}>
+              Filters
+            </button>
+          </div>
         </header>
 
-        {/* Search bar section */}
-        <section className="flex-1 flex items-center justify-center py-12">
-          <div className="w-full max-w-4xl px-6">
-            <AgenticSearchBar onSearch={handleSearch} isLoading={isSearching} />
+        {/* Search section */}
+        <section style={{ padding: "28px 24px 22px", borderBottom: "1px solid var(--rule)" }}>
+          <div style={{ marginBottom: 8 }}>
+            <span className="label">Query</span>
           </div>
+          <AgenticSearchBar onSearch={handleSearch} isLoading={isSearching} />
         </section>
 
-        {/* Results section */}
-        <section className="flex-1 px-6 pb-12">
-          <div className="max-w-6xl mx-auto">
-            <BentoResultsGrid results={results} isLoading={isSearching} />
-          </div>
-        </section>
-
-        {/* Footer with action buttons */}
-        {results.length > 0 && (
-          <footer className="px-6 py-8 flex items-center justify-center gap-4">
-            <NeuralButton
-              variant="secondary"
-              size="md"
-              onClick={() => {
-                setResults([]);
-              }}
-            >
-              CLEAR
-            </NeuralButton>
-            <NeuralButton
-              size="md"
-              onClick={() => {
-                handleSearch("new search");
-              }}
-              onSuccess={() => console.log("Search completed!")}
-            >
-              NEW SEARCH
-            </NeuralButton>
-          </footer>
-        )}
+        {/* Results */}
+        <main style={{ flex: 1, padding: "20px 24px 120px" }}>
+          <BentoResultsGrid results={results} isLoading={isSearching} />
+        </main>
       </div>
 
-      {/* Filtering sidebar */}
-      <FilteringSidebar
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        onFilterChange={handleFilterChange}
-      />
-
-      {/* Performance Dashboard */}
+      <FilteringSidebar isOpen={filterOpen} onClose={() => setFilterOpen(false)} />
       <PerformanceDashboard
         isSearching={isSearching}
         hasResults={results.length > 0}
-        confidenceScore={averageConfidence}
-        inferenceSpeed={inferenceSpeedMs}
+        confidenceScore={avgConfidence}
+        inferenceSpeed={85}
       />
     </div>
   );

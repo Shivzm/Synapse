@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+// NeuralButton.tsx
 import confetti from "canvas-confetti";
 
 interface NeuralButtonProps {
@@ -10,60 +10,25 @@ interface NeuralButtonProps {
 }
 
 export const NeuralButton = ({
-  children,
-  onClick,
-  onSuccess,
-  variant = "primary",
-  size = "md",
+  children, onClick, onSuccess,
+  variant = "primary", size = "md",
 }: NeuralButtonProps) => {
-  const sizeClasses = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-6 py-2.5 text-base",
-    lg: "px-8 py-3 text-lg",
-  };
-
-  const triggerParticleBurst = () => {
-    confetti({
-      particleCount: 30,
-      spread: 60,
-      origin: { x: 0.5, y: 0.5 },
-      colors: ["#00FFC2", "#45A29E"],
-    });
-  };
-
-  const handleClick = () => {
-    onClick?.();
-    if (onSuccess) {
-      triggerParticleBurst();
-      onSuccess();
-    }
-  };
+  const pad = { sm: "5px 10px", md: "7px 16px", lg: "9px 20px" }[size];
+  const fsz = { sm: "9px",      md: "10px",      lg: "11px"     }[size];
 
   return (
-    <motion.button
-      className={`
-        ${sizeClasses[size]}
-        font-semibold rounded-lg
-        ${
-          variant === "primary"
-            ? "bg-mint-glow text-carbon-black hover:shadow-lg hover:shadow-mint-glow/50"
-            : "bg-mint-muted text-carbon-black hover:bg-mint-glow transition-colors"
+    <button
+      className={variant === "primary" ? "neural-btn" : "btn-ghost"}
+      style={{ padding: pad, fontSize: fsz }}
+      onClick={() => {
+        onClick?.();
+        if (onSuccess) {
+          confetti({ particleCount: 28, spread: 50, origin: { x: 0.5, y: 0.6 }, colors: ["#00e8a8", "#009e72"], ticks: 45 });
+          onSuccess();
         }
-        transition-all duration-200 font-mono uppercase tracking-wider
-        relative overflow-hidden group
-      `}
-      onClick={handleClick}
-      whileTap={{ scale: 0.95 }}
-      whileHover={{ scale: 1.05 }}
+      }}
     >
-      <span className="relative z-10 block">{children}</span>
-      {variant === "primary" && (
-        <motion.div
-          className="absolute inset-0 bg-mint-muted opacity-0 group-hover:opacity-20"
-          initial={{ scale: 0 }}
-          whileHover={{ scale: 1 }}
-        />
-      )}
-    </motion.button>
+      {children}
+    </button>
   );
 };
