@@ -1,0 +1,4 @@
+/home/shivam/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/ClickHouseWriter.java
+/home/shivam/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/UserProfileAggregator.java
+/home/shivam/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/UserProfileJob.java
+/home/shivam/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/MinioService.java
