@@ -1,11 +1,8 @@
 [project]
 name = "synapse"
 version = "0.1.0"
-description = "Add your description here"
+description = "High-performance search aggregator with real-time streaming and AI-powered ranking"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = [
-    "confluent-kafka>=2.13.2",
-    "fastapi>=0.135.1",
-    "uvicorn>=0.41.0",
-]
+requires-python = ">=3.13"
+dependencies = []
+

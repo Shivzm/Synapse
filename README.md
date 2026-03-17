@@ -300,21 +300,26 @@ Synapse/
 │       └─ requirements.txt    # Dependencies
 │
 ├─ streaming-jobs/             # Apache Flink Jobs (Stream Processing)
-│   ├─ src/main/java/
-│   │   │
-│   │   ├─ EnqueueItemsJob/    # Process new items
-│   │   │   ├─ EnqueueItemsJob.java
-│   │   │   ├─ ItemProcessor.java
-│   │   │   ├─ VespaFeeder.java
-│   │   │   └─ pom.xml
-│   │   │
-│   │   └─ UserProfileJob/     # Aggregate user interactions
-│   │       ├─ UserProfileJob.java
-│   │       ├─ UserProfileAggregator.java
-│   │       ├─ ClickHouseWriter.java
-│   │       └─ pom.xml
+│   ├─ pom.xml                 # Parent POM (multi-module build)
+│   ├─ README.md               # Flink job documentation
 │   │
-│   └─ README.md              # Flink job documentation
+│   ├─ EnqueueItemsJob/        # Process new items
+│   │   ├─ pom.xml             # Child POM
+│   │   └─ src/main/
+│   │       ├─ java/com/synapse/jobs/
+│   │       │   ├─ EnqueueItemsJob.java
+│   │       │   ├─ ItemProcessor.java
+│   │       │   └─ VespaFeeder.java
+│   │       └─ resources/
+│   │
+│   └─ UserProfileJob/         # Aggregate user interactions
+│       ├─ pom.xml             # Child POM
+│       └─ src/main/
+│           ├─ java/com/synapse/jobs/
+│           │   ├─ UserProfileJob.java
+│           │   ├─ UserProfileAggregator.java
+│           │   └─ ClickHouseWriter.java
+│           └─ resources/
 │
 ├─ search-engine/              # Vespa Configuration
 │   │
@@ -744,7 +749,9 @@ await fetch("/api/events/click", {
 
 - **Docker Desktop** (for local development)
 - **Git**
-- **Python 3.10+** (for data-producers and ml-training)
+- **uv** (Python package manager) - [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+- **Python 3.13** (for ml-training and search-engine)
+- **Python 3.14** (for data-producers, frontend, and infrastructure)
 - **Node.js 18+** (for frontend)
 - **Java 17+** (for Flink streaming jobs)
 
@@ -754,9 +761,32 @@ await fetch("/api/events/click", {
 
 ```bash
 cd Synapse
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements-dev.txt
+
+# Create virtual environment and install dependencies
+uv sync
+
+# Activate the environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+**Python Version Management**:
+
+This monorepo uses multiple Python versions managed by `uv`:
+
+- **Root (`.python-version` = 3.14)**: data-producers, infrastructure, main utilities
+- **`ml-training/.python-version` = 3.13**: ML model training with PyTorch
+- **`search-engine/.python-version` = 3.13**: Vespa search engine integration
+
+`uv` automatically switches to the correct Python version when you navigate to each directory. To work on a specific component:
+
+```bash
+# ML training work (uses Python 3.13)
+cd ml-training
+uv sync  # Installs dependencies for Python 3.13
+
+# Main services (uses Python 3.14)
+cd data-producers/item-lister
+uv sync  # Installs dependencies for Python 3.14
 ```
 
 #### 2. Start the Full Stack (Docker Compose)
