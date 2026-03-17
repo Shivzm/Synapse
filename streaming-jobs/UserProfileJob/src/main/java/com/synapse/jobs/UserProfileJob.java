@@ -11,14 +11,27 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.sql.Timestamp;
 
 public class UserProfileJob {
     private static final Logger LOG = LoggerFactory.getLogger(UserProfileJob.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static void main(String[] args) throws Exception {
+        // 1. Initialize MinIO (The GCS replacement)
+        try {
+            MinioService.initMinio();
+            LOG.info("MinIO storage initialized successfully.");
+        } catch (Exception e) {
+            LOG.error("MinIO initialization failed. Ensure Docker is running!", e);
+        }
+
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        // 1. Kafka Source for User Events
+        // 2. Kafka Source for User Events
         KafkaSource<String> source = KafkaSource.<String>builder()
                 .setBootstrapServers("localhost:9092")
                 .setTopics("user-interactions")
@@ -29,17 +42,27 @@ public class UserProfileJob {
 
         DataStream<String> stream = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka User Events");
 
-        // 2. Write to ClickHouse using JDBC Sink
+        // 3. Write to ClickHouse using JDBC Sink
         stream.addSink(JdbcSink.sink(
                 "INSERT INTO user_profiles (user_id, event_type, timestamp) VALUES (?, ?, ?)",
-                (statement, jsonEvent) -> {
-                    // In a real scenario, you'd use Jackson to parse jsonEvent here
-                    // statement.setString(1, "user123"); 
-                    // statement.setString(2, "click");
-                    // statement.setLong(3, System.currentTimeMillis());
+                (statement, jsonString) -> {
+                    try {
+                        // Parse the incoming Kafka JSON string
+                        JsonNode json = OBJECT_MAPPER.readTree(jsonString);
+                        
+                        statement.setString(1, json.get("user_id").asText());
+                        statement.setString(2, json.get("event_type").asText());
+                        
+                        // Use provided timestamp or current system time
+                        long ts = json.has("timestamp") ? json.get("timestamp").asLong() : System.currentTimeMillis();
+                        statement.setTimestamp(3, new Timestamp(ts));
+                        
+                    } catch (Exception e) {
+                        LOG.error("Failed to parse JSON or map to ClickHouse: {}", jsonString, e);
+                    }
                 },
                 JdbcExecutionOptions.builder()
-                        .withBatchSize(1000)       // ClickHouse loves large batches
+                        .withBatchSize(1000)
                         .withBatchIntervalMs(200)
                         .withMaxRetries(5)
                         .build(),

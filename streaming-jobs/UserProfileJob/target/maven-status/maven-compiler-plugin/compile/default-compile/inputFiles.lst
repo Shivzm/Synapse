@@ -1,3 +1,4 @@
 /mnt/d/Synapse/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/ClickHouseWriter.java
 /mnt/d/Synapse/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/UserProfileJob.java
+/mnt/d/Synapse/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/MinioService.java
 /mnt/d/Synapse/streaming-jobs/UserProfileJob/src/main/java/com/synapse/jobs/UserProfileAggregator.java
