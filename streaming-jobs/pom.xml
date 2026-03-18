@@ -19,6 +19,14 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+
+         <!-- CVE-fixed dependency versions -->
+        <!-- Fixes CVE-2025-27817 (SSRF/file read, CVSS 7.5) and CVE-2024-31141 (privilege escalation) -->
+        <kafka.clients.version>3.9.1</kafka.clients.version>
+        <!-- Fixes CVE-2023-35116 (DoS); 2.18.x is the active LTS line -->
+        <jackson.version>2.18.3</jackson.version>
+        <!-- Fixes CVE-2025-59952 (sensitive info exposure via XML substitution, CVSS 8.7) -->
+        <minio.version>8.6.0</minio.version>
     </properties>
 
     <dependencyManagement>
@@ -33,6 +41,24 @@
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka</artifactId>
                 <version>3.4.0-1.20</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.kafka</groupId>
+                        <artifactId>kafka-clients</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!--  Pinned safe version of kafka-clients (CVE-2024-31141, CVE-2025-27817 fixed in 3.9.1)  -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.clients.version}</version>
+            </dependency>
+            <!--  Pinned safe jackson-databind (CVE-2023-35116 fixed in 2.16+; using 2.18.x LTS)  -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

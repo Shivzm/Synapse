@@ -9,6 +9,7 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,20 +44,21 @@ public class UserProfileJob {
         DataStream<String> stream = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka User Events");
 
         // 3. Write to ClickHouse using JDBC Sink
-        stream.addSink(JdbcSink.sink(
+        @SuppressWarnings("deprecation")
+        SinkFunction<String> jdbcSink = JdbcSink.sink(
                 "INSERT INTO user_profiles (user_id, event_type, timestamp) VALUES (?, ?, ?)",
                 (statement, jsonString) -> {
                     try {
-                        // Parse the incoming Kafka JSON string
                         JsonNode json = OBJECT_MAPPER.readTree(jsonString);
-                        
+ 
                         statement.setString(1, json.get("user_id").asText());
                         statement.setString(2, json.get("event_type").asText());
-                        
-                        // Use provided timestamp or current system time
-                        long ts = json.has("timestamp") ? json.get("timestamp").asLong() : System.currentTimeMillis();
+ 
+                        long ts = json.has("timestamp")
+                                ? json.get("timestamp").asLong()
+                                : System.currentTimeMillis();
                         statement.setTimestamp(3, new Timestamp(ts));
-                        
+ 
                     } catch (Exception e) {
                         LOG.error("Failed to parse JSON or map to ClickHouse: {}", jsonString, e);
                     }
@@ -72,8 +74,12 @@ public class UserProfileJob {
                         .withUsername("default")
                         .withPassword("")
                         .build()
-        ));
-
+        );
+ 
+        //noinspection deprecation
+        stream.addSink(jdbcSink);
+ 
         env.execute("Synapse UserProfileJob");
     }
 }
+ 

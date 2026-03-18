@@ -8,7 +8,7 @@
         <artifactId>streaming-jobs-parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>enqueue-items-job</artifactId>
 
     <dependencies>
@@ -16,19 +16,39 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka</artifactId>
         </dependency>
+
+        <!-- Explicit safe kafka-clients to replace the excluded transitive version -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.yahoo.vespa</groupId>
             <artifactId>vespa-feed-client</artifactId>
             <version>8.656.31</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.yahoo.vespa</groupId>
+            <artifactId>vespa-feed-client-api</artifactId>
+            <version>8.656.31</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
             <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 </project>

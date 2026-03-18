@@ -40,7 +40,7 @@ public class EnqueueItemsJob {
         stream.map(value -> {
             LOG.debug("Received item from Kafka: {}", value);
             return value;
-        }).addSink(new VespaFeeder()); // We will create this class next
+        }).sinkTo(new VespaFeeder()); // We will create this class next
 
         // 5. Execute the job
         env.execute("Synapse EnqueueItemsJob");
