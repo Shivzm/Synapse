@@ -267,6 +267,9 @@ Synapse/
 ├─ README.md (this file)
 ├─ pyproject.toml              # Root project configuration
 ├─ main.py                      # CLI entry point
+├─ .env.example                     # Template for environment variables (commit this)
+├─ .env                             # Real secrets — never commit (gitignored)
+├─ .gitignore
 │
 ├─ infrastructure/              # Deployment & orchestration
 │   ├─ docker-compose.yml      # Local development stack
@@ -291,12 +294,16 @@ Synapse/
 │   │   ├─ schemas.py          # Pydantic models
 │   │   ├─ s3_client.py        # MinIO integration
 │   │   ├─ kafka_producer.py   # Kafka publishing
+│   │   ├─ config.py                # Loads env vars from .env
+│   │   ├─ .env                     # Service-specific overrides
 │   │   └─ requirements.txt    # Dependencies
 │   │
 │   └─ click-tracker/          # User interaction tracker
 │       ├─ app.py              # FastAPI server
 │       ├─ events.py           # Event models
 │       ├─ kafka_producer.py   # Kafka publishing
+│   │   ├─ config.py                # Loads env vars from .env
+│   │   ├─ .env                     # Service-specific overrides
 │       └─ requirements.txt    # Dependencies
 │
 ├─ streaming-jobs/             # Apache Flink Jobs (Stream Processing)
@@ -311,6 +318,8 @@ Synapse/
 │   │       │   ├─ ItemProcessor.java
 │   │       │   └─ VespaFeeder.java
 │   │       └─ resources/
+│   │           ├─ application.properties       # Kafka, ClickHouse, Vespa config (gitignored)
+│   │           └─ application.properties.example
 │   │
 │   └─ UserProfileJob/         # Aggregate user interactions
 │       ├─ pom.xml             # Child POM
@@ -320,6 +329,8 @@ Synapse/
 │           │   ├─ UserProfileAggregator.java
 │           │   └─ ClickHouseWriter.java
 │           └─ resources/
+│   │           ├─ application.properties       # Kafka, ClickHouse config (gitignored)
+│   │           └─ application.properties.example
 │
 ├─ search-engine/              # Vespa Configuration
 │   │
@@ -358,8 +369,12 @@ Synapse/
 │   │   ├─ clickhouse-driver
 │   │   ├─ numpy, pandas, scikit-learn
 │   │   └─ onnx
-│   │
-│   └─ notebooks/ (optional)   # Jupyter notebooks for EDA
+│   ├─ config.py                    # Loads env vars from .env
+│   ├─ .env                         # ClickHouse + Vespa connection config (gitignored)
+│   └─ models/                      # Output directory for trained models (gitignored)
+│       └─ .gitkeep
+│
+│  
 │
 └─ frontend/                   # React TypeScript Web App
     │
